@@ -10,11 +10,11 @@ const fs = require("fs");
 const path = require("path");
 const { parseOffice } = require("officeparser");
 
+const os = require("os");
 const upload = multer({
-  dest: "temp_uploads/",
+  dest: os.tmpdir(),
   limits: { fileSize: 15 * 1024 * 1024 }, // 15 MB max
 });
-
 const app = express();
 app.use(cors());
 app.use(express.json({ limit: "1mb" }));
@@ -564,4 +564,7 @@ app.get("/api/stats", auth, async (req, res) => {
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Study Buddy server running on http://localhost:${PORT}`));
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => console.log(`Study Buddy server running on http://localhost:${PORT}`));
+}
+module.exports = app;
