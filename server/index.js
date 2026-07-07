@@ -21,11 +21,12 @@ app.use(express.json({ limit: "1mb" }));
 
 // ---------- Database (XAMPP MySQL) ----------
 const db = mysql.createPool({
-  host: "localhost",
-  port: process.env.DB_PORT || 3307, // XAMPP MySQL port (3306 default, 3307 if changed)
-  user: "root",
-  password: "", // XAMPP default
-  database: "study_buddy",
+  host: process.env.DB_HOST || "localhost",
+  port: process.env.DB_PORT || 3307,
+  user: process.env.DB_USER || "root",
+  password: process.env.DB_PASSWORD || "",
+  database: process.env.DB_NAME || "study_buddy",
+  ssl: process.env.DB_HOST ? { minVersion: "TLSv1.2", rejectUnauthorized: true } : undefined,
 });
 
 // ---- Startup self-check: test DB connection and print a clear message ----
@@ -562,5 +563,5 @@ app.get("/api/stats", auth, async (req, res) => {
   });
 });
 
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Study Buddy server running on http://localhost:${PORT}`));
