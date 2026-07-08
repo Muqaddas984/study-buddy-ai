@@ -10,23 +10,22 @@ const fs = require("fs");
 const path = require("path");
 const { parseOffice } = require("officeparser");
 
-const os = require("os");
 const upload = multer({
-  dest: os.tmpdir(),
+  dest: "temp_uploads/",
   limits: { fileSize: 15 * 1024 * 1024 }, // 15 MB max
 });
+
 const app = express();
 app.use(cors());
 app.use(express.json({ limit: "1mb" }));
 
 // ---------- Database (XAMPP MySQL) ----------
 const db = mysql.createPool({
-  host: process.env.DB_HOST || "localhost",
-  port: process.env.DB_PORT || 3307,
-  user: process.env.DB_USER || "root",
-  password: process.env.DB_PASSWORD || "",
-  database: process.env.DB_NAME || "study_buddy",
-  ssl: process.env.DB_HOST ? { minVersion: "TLSv1.2", rejectUnauthorized: true } : undefined,
+  host: "localhost",
+  port: process.env.DB_PORT || 3307, // XAMPP MySQL port (3306 default, 3307 if changed)
+  user: "root",
+  password: "", // XAMPP default
+  database: "study_buddy",
 });
 
 // ---- Startup self-check: test DB connection and print a clear message ----
@@ -113,6 +112,11 @@ app.post("/api/register", async (req, res) => {
     const { name, email, password } = req.body;
     if (!name || !email || !password)
       return res.status(400).json({ error: "All fields are required." });
+    const emailOk = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email.trim());
+    if (!emailOk)
+      return res.status(400).json({ error: "Please enter a valid email address (e.g. name@gmail.com)." });
+    if (password.length < 6)
+      return res.status(400).json({ error: "Password must be at least 6 characters." });
     if (password.length < 6)
       return res.status(400).json({ error: "Password must be at least 6 characters." });
 
@@ -563,8 +567,5 @@ app.get("/api/stats", auth, async (req, res) => {
   });
 });
 
-const PORT = process.env.PORT || 5000;
-if (!process.env.VERCEL) {
-  app.listen(PORT, () => console.log(`Study Buddy server running on http://localhost:${PORT}`));
-}
-module.exports = app;
+const PORT = 5000;
+app.listen(PORT, () => console.log(`Study Buddy server running on http://localhost:${PORT}`));

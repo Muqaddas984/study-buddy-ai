@@ -18,6 +18,11 @@ export default function Login({ onLogin }) {
 
   const submit = async (e) => {
     e.preventDefault();
+    if (mode === "register") {
+      const emailOk = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(form.email.trim());
+      if (!emailOk) { setError("Please enter a valid email (e.g. name@gmail.com)."); return; }
+      if (form.password.length < 6) { setError("Password must be at least 6 characters."); return; }
+    }
     setError(""); setSuccess("");
     setLoading(true);
     try {
@@ -72,14 +77,14 @@ export default function Login({ onLogin }) {
               {mode === "register" && (
                 <div className="field">
                   <label>Full Name</label>
-                  <input placeholder="e.g. Muqaddas Naseer" value={form.name}
+                  <input placeholder="Your full name" autoComplete="off" value={form.name}
                     onChange={set("name")} required autoComplete="name" />
                 </div>
               )}
 
               <div className="field">
                 <label>Email Address</label>
-                <input type="email" placeholder="you@example.com" value={form.email}
+                <input type="email" placeholder="you@example.com" autoComplete="email" value={form.email}
                   onChange={set("email")} required autoComplete="email" />
               </div>
 
